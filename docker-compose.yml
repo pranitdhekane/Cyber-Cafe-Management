@@ -1,0 +1,43 @@
+services:
+  db:
+   
+   image: mysql:8.0
+   environment:
+    MYSQL_ROOT_PASSWORD: ${MYSQL_ROOT_PASSWORD}
+    MYSQL_DATABASE: ${MYSQL_DATABASE}
+   healthcheck:
+     test: ["CMD", "mysqladmin", "ping", "-h", "localhost"]
+     interval: 10s
+     timeout: 5s
+     retries: 5
+   restart: always  
+   volumes:
+    - ./db/ccmsdb.sql:/docker-entrypoint-initdb.d/ccmsdb.sql
+    - ccms-data:/var/lib/mysql
+  
+   networks:
+    - ccms-net
+  
+  web-ui:
+   build: ./ccms
+   environment:
+    DB_HOST: ${DB_HOST}
+    DB_USER: ${DB_USER}
+    DB_PASSWORD: ${DB_PASSWORD}
+    DB_DATABASE: ${DB_DATABASE}
+   restart: always
+   ports:
+     - "8080:80"
+   networks:
+    - ccms-net
+   depends_on:
+    db:
+     condition: service_healthy
+
+
+networks:
+  ccms-net:
+
+
+volumes:
+  ccms-data:
