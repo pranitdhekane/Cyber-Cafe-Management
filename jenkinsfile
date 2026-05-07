@@ -77,11 +77,19 @@ pipeline{
 
         mysql -u $DB_USER -p$DB_PASS -e "CREATE DATABASE IF NOT EXISTS $DB_NAME;"
 
-        if [ -f $APP_DIR/db/ccmsdb.sql ]; then
-            mysql -u $DB_USER -p$DB_PASS $DB_NAME < $APP_DIR/db/ccmsdb.sql
-            echo "Database imported successfully"
+        TABLE_COUNT=$(mysql -u $DB_USER -p$DB_PASS -D $DB_NAME -se "SHOW TABLES;" | wc -l)
+
+        if [ "$TABLE_COUNT" -eq 0 ]; then
+            echo "Importing database..."
+
+            if [ -f $APP_DIR/db/ccmsdb.sql ]; then
+                mysql -u $DB_USER -p$DB_PASS $DB_NAME < $APP_DIR/db/ccmsdb.sql
+                echo "Database imported successfully"
+            else
+                echo "Database file not found"
+            fi
         else
-            echo "Database file not found"
+            echo "Database already exists, skipping import"
         fi
         '''
     }
@@ -90,7 +98,7 @@ pipeline{
             steps {
                 sh '''
                 echo "Restarting web server..."
-                sudo systemctl restart apache2 || sudo systemctl restart httpd
+                sudo systemctl restart apache2
                 '''
             }
         }
