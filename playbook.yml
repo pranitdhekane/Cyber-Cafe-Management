@@ -1,0 +1,49 @@
+---
+- name: Setup App Server for CCMS
+  hosts: all
+  become: yes
+
+  tasks:
+
+    - name: Update system
+      apt:
+        update_cache: yes
+
+    - name: Install Apache
+      apt:
+        name: apache2
+        state: present
+
+    - name: Install PHP and extensions
+      apt:
+        name:
+          - php
+          - php-cli
+          - php-mysql
+          - php-curl
+          - php-mbstring
+          - php-xml
+          - php-zip
+          - libapache2-mod-php
+        state: present
+
+    - name: Install MySQL server
+      apt:
+        name: mysql-server
+        state: present
+
+    - name: Install Git
+      apt:
+        name: git
+        state: present
+    - name: Enable and start Apache
+      systemd:
+        name: apache2
+        enabled: yes
+        state: started
+
+    - name: Enable and start MySQL
+      systemd:
+        name: mysql
+        enabled: yes
+        state: started
