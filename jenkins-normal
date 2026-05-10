@@ -1,0 +1,117 @@
+pipeline{
+    agent any
+    environment {
+        APP_DIR = "/var/www/html/myapp"
+        DB_NAME = "ccms"
+        DB_USER = "root"
+        DB_PASS = "Root@4416"
+    }
+    stages{
+    stage('Checkout...'){
+        steps{
+            git branch: 'main', url: 'https://github.com/pranitdhekane/Cyber-Cafe-Management.git'
+
+        }
+
+        
+    }
+    /*stage('Check Files') {
+    steps {
+        sh 'pwd && ls -la && find . -maxdepth 2 -type d'
+    }
+    } */
+    stage('Buildin app'){
+        steps{
+
+        sh '''
+        cd ccms
+        if [ -f composer.json ]; then
+                    composer install --no-dev --optimize-autoloader
+                else
+                    echo "No Composer dependencies"
+                fi
+        '''
+    }
+    }
+    stage('Validation code ...'){
+        steps{
+            sh '''
+         cd ccms
+          echo "Validating PHP files..."
+          find . -name "*.php" -exec php -l {} \\;
+         '''
+        }
+    }
+    stage('Backup') {
+            steps {
+                sh '''
+                echo "Taking backup..."
+                sudo mkdir -p /var/www/backup
+                sudo cp -r $APP_DIR /var/www/backup/myapp_$(date +%F_%T) || true
+                '''
+            }
+        }
+
+        stage('Deploy App') {
+            steps {
+                sh '''
+                echo "Deploying application..."
+                sudo rm -rf $APP_DIR/*
+                sudo mkdir -p $APP_DIR
+                sudo cp -r * $APP_DIR
+                '''
+            }
+        }
+        stage('Set Permissions') {
+            steps {
+                sh '''
+                echo "Setting permissions..."
+                sudo chown -R www-data:www-data $APP_DIR || sudo chown -R apache:apache $APP_DIR
+                '''
+            }
+        }
+        stage('Database Setup') {
+    steps {
+        sh '''
+        echo "Setting up database..."
+
+        mysql -u $DB_USER -p$DB_PASS -e "CREATE DATABASE IF NOT EXISTS $DB_NAME;"
+
+        TABLE_COUNT=$(mysql -u $DB_USER -p$DB_PASS -D $DB_NAME -se "SHOW TABLES;" | wc -l)
+
+        if [ "$TABLE_COUNT" -eq 0 ]; then
+            echo "Importing database..."
+
+            if [ -f $APP_DIR/db/ccmsdb.sql ]; then
+                mysql -u $DB_USER -p$DB_PASS $DB_NAME < $APP_DIR/db/ccmsdb.sql
+                echo "Database imported successfully"
+            else
+                echo "Database file not found"
+            fi
+        else
+            echo "Database already exists, skipping import"
+        fi
+        '''
+    }
+}
+        stage('Restart Server') {
+            steps {
+                sh '''
+                echo "Restarting web server..."
+                sudo systemctl restart apache2
+                '''
+            }
+        }
+    }
+    post {
+        success {
+            echo " Deployment Successful"
+        }
+        failure {
+            echo " Deployment Failed"
+        }
+    
+    }
+
+
+}
