@@ -19,7 +19,7 @@ services:
     - ccms-net
   
   web-ui:
-   build: ./ccms
+    image: dpranit/ccms-app:latest
    environment:
     DB_HOST: ${DB_HOST}
     DB_USER: ${DB_USER}
