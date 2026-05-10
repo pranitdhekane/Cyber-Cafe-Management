@@ -1,0 +1,57 @@
+@Library("pranitlib") _
+pipeline{
+    agent any
+    
+    stages{
+        stage("Greetings"){
+            steps{
+                script{
+                    hello()
+                }
+            }
+        }
+        
+        stage("Code checkout"){
+            steps{
+                echo "Checking out code"
+                script{
+                    clone ( "https://github.com/pranitdhekane/Cyber-Cafe-Management.git", "main")
+                }
+                  echo "Code chekoup complet"
+                
+            }
+        }
+        
+        stage("Build...."){
+            steps{
+                sh "whoami"
+                script{
+                    docker_build("dpranit","ccms-app","latest","./ccms/Dockerfile")
+                }
+            }
+        }
+        stage("Docke push...."){
+            steps{
+                
+                script{
+                    docker_push("dpranit", "ccms-app","latest")
+                }
+            }
+        }
+        
+        stage("Deploy..."){
+            steps{
+                sh "docker compose down && docker compose up -d"
+            }
+        }
+        
+        stage("Clean workspace"){
+            
+            steps{
+                cleanWs()
+            }
+        }
+            
+    }  
+    
+}
