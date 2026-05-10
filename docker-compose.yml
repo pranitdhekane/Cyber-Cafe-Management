@@ -27,7 +27,7 @@ services:
     DB_DATABASE: ${DB_DATABASE}
    restart: always
    ports:
-     - "8080:80"
+     - "8081:80"
    networks:
     - ccms-net
    depends_on:
