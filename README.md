@@ -1,59 +1,123 @@
-# CCMS (Cyber Cafe Management System)
+# Cyber Cafe Management System – DevOps Automation Project
 
-A Dockerized PHP + MySQL web application for managing cyber café users, sessions, and billing.
+A containerized Cyber Cafe Management System deployed using Docker, Docker Compose, and Jenkins CI/CD automation.
 
----
-
-## 🚀 Features
-
-- User entry management
-- Active / checkout tracking system
-- Fee calculation support
-- Admin dashboard
-- MySQL database integration
-- Dockerized environment (PHP + Apache + MySQL)
+This project demonstrates end-to-end DevOps practices including containerization, automated build & deployment pipelines, GitHub webhook integration, persistent database storage, and multi-container orchestration.
 
 ---
 
-## 🧱 Tech Stack
+# Tech Stack
 
-- PHP 8.2 (Apache)
-- MySQL 8.0
-- Docker & Docker Compose
-- Bootstrap (UI)
-- HTML/CSS/JS
-
----
-
-## 📁 Project Structure
-cyber/
-│
-├── ccms/ # PHP application
-│ ├── index.php
-│ ├── add-users.php
-│ ├── view-user-detail.php
-│ └── includes/
-│
-├── db/
-│ └── ccmsdb.sql # Initial database schema
-│
-├── docker-compose.yml
-├── Dockerfile
-└── .gitignore
-
-
+- Docker
+- Docker Compose
+- Jenkins
+- GitHub Webhooks
+- PHP 8.2
+- Apache
+- MySQL 8
+- Linux
 
 ---
 
-## ⚙️ Setup Instructions
+# Features
 
-### 1️⃣ Clone Repository
+- Multi-container application deployment
+- Dockerized PHP-Apache application
+- MySQL database container with persistent storage
+- Automated CI/CD pipeline using Jenkins
+- GitHub webhook integration for auto-triggered builds
+- Docker image push to Docker Hub
+- Environment variable configuration using `.env`
+- Container health checks and dependency management
+- Automated deployment using Docker Compose
 
-```bash
-git clone https://github.com/your-username/ccms.git
-cd ccms
+---
 
-2️⃣ Create .env file
+# Project Architecture
+
+```text
+Developer Pushes Code
+        │
+        ▼
+GitHub Repository
+        │
+        ▼
+GitHub Webhook
+        │
+        ▼
+Jenkins Pipeline
+        │
+ ┌──────┴──────┐
+ ▼             ▼
+Docker Build   Docker Push
+        │
+        ▼
+Docker Compose Deployment
+        │
+ ┌──────┴──────┐
+ ▼             ▼
+Web Container   MySQL Container
+```
+
+---
+---
+
+# Dockerfile
+
+- Uses `webdevops/php-apache:8.2-alpine`
+- Installs required PHP extensions:
+  - mysqli
+  - pdo
+  - pdo_mysql
+- Copies application source code into container
+
+---
+
+# Docker Compose Setup
+
+Services included:
+
+## 1. Database Service
+
+- MySQL 8 container
+- Persistent volume storage
+- Automatic database initialization
+- Health checks enabled
+
+## 2. Web Application Service
+
+- PHP-Apache application container
+- Connected through custom Docker network
+- Depends on healthy database container
+- Exposed on port `8083`
+
+---
+
+# Jenkins CI/CD Pipeline
+
+The Jenkins pipeline automates:
+
+1. Source code checkout from GitHub
+2. Docker image build
+3. Docker image push to Docker Hub
+4. Application deployment using Docker Compose
+5. Workspace cleanup
+
+---
+
+# GitHub Webhook Integration
+
+GitHub Webhooks are configured to automatically trigger Jenkins builds whenever code is pushed to the repository.
+
+This enables continuous integration and continuous deployment (CI/CD).
+
+---
+
+# Environment Variables
+
+Create a `.env` file:
+
+```env
 MYSQL_ROOT_PASSWORD=root
 MYSQL_DATABASE=ccms
 
@@ -61,56 +125,94 @@ DB_HOST=db
 DB_USER=root
 DB_PASSWORD=root
 DB_DATABASE=ccms
-3️⃣ Run with Docker
-docker compose up -d --build
-4️⃣ Access Application
-http://localhost:8080
-🐳 Docker Services
-MySQL Database
-Image: mysql:8.0
-Port: 3306
-Database: ccms
-Web Application
-PHP + Apache container
-Port: 8080
-🗄️ Database Initialization
+```
 
-The database is automatically initialized using:
+---
 
-db/ccmsdb.sql
+# Running the Project
 
-This file is mounted into:
+## Clone Repository
 
-/docker-entrypoint-initdb.d/
-🔄 User Flow
-Add new user
-User status = Active
-On checkout → status = Out
-Fees + remarks stored
-View history in dashboard
-🧪 Common Issues & Fixes
-❌ Users not showing
+```bash
+git clone https://github.com/your-username/Cyber-Cafe-Management.git
+cd Cyber-Cafe-Management
+```
 
-Check:
+---
 
-Status = 'Active'
-❌ DB connection failed
+## Start Containers
 
-Ensure:
+```bash
+docker compose up -d
+```
 
-DB_HOST=db
-🧼 Cleanup
-docker compose down -v
-docker system prune -a
-📌 Best Practices
-Always use service name db (not container name)
-Store secrets in .env
-Do not commit .env or logs
-Use Active/Out status instead of empty strings
-👨‍💻 Author
+---
+
+## Stop Containers
+
+```bash
+docker compose down
+```
+
+---
+
+# Access Application
+
+Application URL:
+
+```text
+http://localhost:8083
+```
+
+---
+
+# Docker Hub Image
+
+```text
+docker pull dpranit/ccms-app:latest
+```
+
+---
+
+# Jenkins Pipeline Stages
+
+- Greetings
+- Code Checkout
+- Docker Build
+- Docker Push
+- Deployment
+- Workspace Cleanup
+
+---
+
+# DevOps Concepts Used
+
+- CI/CD Automation
+- Containerization
+- Docker Networking
+- Persistent Volumes
+- Infrastructure Automation
+- Environment Management
+- Automated Deployment
+- Health Checks
+- GitHub Webhooks
+- Jenkins Shared Libraries
+
+---
+
+# Future Improvements
+
+- Add Nginx reverse proxy
+- Implement Kubernetes deployment
+- Add monitoring with Prometheus & Grafana
+- Add SSL using Let's Encrypt
+- Implement automated testing stage
+- Add Terraform infrastructure provisioning
+
+---
+
+# Author
 
 Pranit Dhekane
 
-📜 License
-
-This project is for educational / practice purposes.
+GitHub: https://github.com/pranitdhekane
