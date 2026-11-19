@@ -8,7 +8,7 @@ metadata:
 spec:
   scaleTargetRef:
     kind: Deployment
-    name: apache-dep
+    name: ccms-dep
     apiVersion: apps/v1
 
   minReplicas: 1
@@ -20,4 +20,4 @@ spec:
         name: cpu
         target:
           type: Utilization
-          averageUtilization: 5
+          averageUtilization: 70
