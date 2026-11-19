@@ -1,0 +1,42 @@
+kind: Deployment
+apiVersion: apps/v1
+
+metadata:
+  name: ccms-dep
+  namespace: ccms
+
+spec:
+  replicas: 3
+  selector:
+    matchLabels:
+      app: ccms
+  template:
+    metadata:
+      name: ccms-pod
+      labels:
+        app: ccms
+    spec:
+      containers:
+      - name: ccmd-pod
+        image: dpranit/cdc:latest
+        ports:
+        - containerPort: 80
+
+        env:
+          - name: DB_HOST
+            value: db-service.ccms.svc.cluster.local
+
+          - name: MYSQL_DATABASE
+            value: ccmsdb
+          - name: DB_USER
+            value: root
+
+
+          - name: MYSQL_ROOT_PASSWORD
+            valueFrom:
+              secretKeyRef:
+                name: ccms-cred
+                key: MYSQL_ROOT_PASSWORD
+
+
+

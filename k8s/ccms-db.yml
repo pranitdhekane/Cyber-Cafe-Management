@@ -1,0 +1,51 @@
+kind: StatefulSet
+apiVersion: apps/v1
+
+metadata:
+  name: ccms-db
+  namespace: ccms
+spec:
+  serviceName: db-service
+  replicas: 1
+  selector:
+    matchLabels:
+      app: ccms-db
+
+  template:
+    metadata:
+      labels:
+        app: ccms-db
+    spec:
+      containers:
+        - name: ccms-db
+          image: mysql:8.0
+          ports:
+          - containerPort: 3306
+
+          env:
+          - name: MYSQL_ROOT_PASSWORD
+            valueFrom:
+              secretKeyRef:
+                name: ccms-cred
+                key: MYSQL_ROOT_PASSWORD
+          - name: MYSQL_DATABASE
+            value: ccmsdb
+
+          volumeMounts:
+            - name: ccms-db
+              mountPath: /var/lib/mysql
+            - name: mysql-init-script
+              mountPath: /docker-entrypoint-initdb.d
+      volumes:
+      - name: mysql-init-script
+        configMap:
+           name: mysql-init-script
+  volumeClaimTemplates:
+  - metadata:
+      name: ccms-db
+    spec:
+      accessModes: 
+      - ReadWriteOnce
+      resources:
+        requests:
+          storage:  1Gi

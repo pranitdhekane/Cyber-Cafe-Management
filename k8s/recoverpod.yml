@@ -1,0 +1,22 @@
+
+apiVersion: v1
+kind: Pod
+metadata:
+  name: mysql-recovery
+  namespace: ccms
+spec:
+  restartPolicy: Never
+  containers:
+    - name: mysql-recovery
+      image: mysql:8.0
+      args:
+        - "--skip-grant-tables"
+        - "--skip-networking"
+      volumeMounts:
+        - name: mysql-data
+          mountPath: /var/lib/mysql
+  volumes:
+    - name: mysql-data
+      persistentVolumeClaim:
+        claimName: ccms-db-ccms-db-0
+
